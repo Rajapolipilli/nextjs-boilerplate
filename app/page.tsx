@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import {concat} from 'uint8arrays'
 
 export default function Home() {
   const searchParams = useSearchParams()
