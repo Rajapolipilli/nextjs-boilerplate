@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px]">
+      <div className="relative w-[600px] h-[600px] sm:w-[400px] sm:h-[400px]">
         {frontImage && backImage ? (
           <Image
             src={showFront ? frontImage : backImage}
