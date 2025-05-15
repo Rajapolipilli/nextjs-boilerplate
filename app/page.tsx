@@ -1,10 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Image from 'next/image'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { TextureLoader } from 'three'
+import { OrbitControls } from '@react-three/drei'
+
+type ViewMode = 'front' | 'back' | '3d'
 
 export default function Home() {
-  const [showFront, setShowFront] = useState(true)
+  const [view, setView] = useState<ViewMode>('3d')
   const [frontImage, setFrontImage] = useState<string | null>(null)
   const [backImage, setBackImage] = useState<string | null>(null)
 
@@ -23,39 +28,74 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <div className="relative w-[500px] h-[500px] sm:w-[400px] sm:h-[400px]">
+      <div className="relative w-[500px] h-[500px] sm:w-[400px] sm:h-[400px] bg-white rounded shadow-lg">
         {frontImage && backImage ? (
-          <Image
-            src={showFront ? frontImage : backImage}
-            alt={showFront ? 'Front Image' : 'Back Image'}
-            fill
-            unoptimized
-            sizes="100%"
-            className="object-contain rounded shadow-lg transition duration-500"
-            priority
-          />
+          view === '3d' ? (
+            <Canvas className="rounded">
+              <Suspense fallback={null}>
+                <ambientLight intensity={0.8} />
+                <directionalLight position={[0, 0, 5]} intensity={1} />
+                <OrbitControls enableZoom={false} />
+                <Card3D frontUrl={frontImage} backUrl={backImage} />
+              </Suspense>
+            </Canvas>
+          ) : (
+            <Image
+              src={view === 'front' ? frontImage : backImage}
+              alt={`${view} Image`}
+              fill
+              unoptimized
+              sizes="100%"
+              className="object-contain rounded"
+              priority
+            />
+          )
         ) : (
-          <p>Loading images...</p>
+          <p className="text-center">Loading images...</p>
         )}
       </div>
 
-      <div className="mt-6">
-        <button
-          onClick={() => setShowFront(!showFront)}
-          className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-            showFront ? 'bg-blue-600' : 'bg-gray-400'
-          }`}
-        >
-          <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
-              showFront ? 'translate-x-8' : 'translate-x-1'
+      <div className="mt-6 flex gap-4">
+        {(['3d','front', 'back'] as ViewMode[]).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => setView(mode)}
+            className={`px-4 py-2 rounded ${
+              view === mode ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'
             }`}
-          />
-        </button>
-        <div className="text-sm text-gray-700 mt-2 text-center">
-          Showing: <span className="font-medium">{showFront ? 'Front' : 'Back'}</span>
-        </div>
+          >
+            {mode.toUpperCase()}
+          </button>
+        ))}
       </div>
     </main>
   )
 }
+
+
+
+
+
+function Card3D({ frontUrl, backUrl }: { frontUrl: string; backUrl: string }) {
+  const frontTexture = useLoader(TextureLoader, frontUrl)
+  const backTexture = useLoader(TextureLoader, backUrl)
+
+  useFrame((state) => {
+    state.scene.rotation.y += 0.005
+  })
+
+  return (
+    <mesh>
+      {/* Width: 5, Height: 7, Depth: 0.3 */}
+      <boxGeometry args={[5, 7, 0.3]} />
+      {/* Material index order: right, left, top, bottom, front, back */}
+      <meshStandardMaterial attach="material-0" color="gold" />
+      <meshStandardMaterial attach="material-1" color="gold" />
+      <meshStandardMaterial attach="material-2" color="gold" />
+      <meshStandardMaterial attach="material-3" color="gold" />
+      <meshStandardMaterial attach="material-4" map={frontTexture} />
+      <meshStandardMaterial attach="material-5" map={backTexture} />
+    </mesh>
+  )
+}
+
