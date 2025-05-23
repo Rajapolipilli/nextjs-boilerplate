@@ -84,8 +84,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <div className="relative w-[500px] h-[500px] sm:w-[400px] sm:h-[400px] bg-white rounded shadow-lg">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-black-100 p-4">
+      <div className="relative w-[500px] h-[500px] sm:w-[400px] sm:h-[400px] bg-black rounded shadow-lg">
         {frontUrl && backUrl ? (
           view === '3d' ? (
             <Canvas className="rounded">
