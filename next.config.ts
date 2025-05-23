@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'pink-junior-peacock-757.mypinata.cloud',
+        hostname: '*',
         pathname: '/ipfs/**',
       },
     ],
